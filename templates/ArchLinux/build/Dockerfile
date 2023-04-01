@@ -29,7 +29,7 @@ RUN useradd coder \
       --user-group
 
 
-RUN curl -fsSL https://github.com/wvffle/coder-config/-/raw/master/resources/bashrc > /home/coder/.bashrc && \
+RUN curl -fsSL https://raw.githubusercontent.com/wvffle/coder-config/master/resources/bashrc > /home/coder/.bashrc && \
     chown coder /home/coder/.bashrc
 
 USER 1000
