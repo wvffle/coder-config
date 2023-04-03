@@ -7,25 +7,19 @@ USER 0
 
 # Install needed packages
 RUN pacman -Syyu --noconfirm --quiet --noprogressbar \
-      bash \
-      ca-certificates \
-      curl \
-      wget \
-      gcc \
-      base-devel \
-      gcc \
-      make \
-      git \
+      ca-certificates curl wget \
+      gcc base-devel make git man-db \
       neovim \
       pyenv \
-      starship && \
+      bash zsh zsh-autosuggestions starship && \
+
     # Delete package cache to avoid consuming space in layer
     pacman -Scc
 
 # Add a user `coder` so that you're not developing as the `root` user
 RUN useradd coder \
       --create-home \
-      --shell=/bin/bash \
+      --shell=/bin/zsh \
       --uid=1000 \
       --user-group
 RUN echo coder:coder | chpasswd
@@ -36,7 +30,9 @@ RUN mkdir /home/coder/workspace && ln -s /home/coder/workspace /workspace && cho
 USER 1000
 
 # Shell
-RUN curl -fsSL https://raw.githubusercontent.com/wvffle/coder-config/master/resources/bashrc > /home/coder/.bashrc
+RUN mkdir -p /home/coder/.config
+RUN curl -fsSL https://raw.githubusercontent.com/wvffle/coder-config/master/resources/zshrc > /home/coder/.zshrc
+RUN curl -fsSL https://raw.githubusercontent.com/wvffle/coder-config/master/resources/starship.toml > /home/coder/.config/starship.toml
 
 # Install Python using PyEnv
 RUN pyenv install -s 3 && pyenv global 3
