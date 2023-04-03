@@ -50,5 +50,9 @@ load-nvmrc
 # Autosuggestions
 source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh 
 
+# Bindings
+bindkey "^[[1;5C" forward-word
+bindkey "^[[1;5D" backward-word
+
 # Starship
 eval "$(starship init zsh)"
