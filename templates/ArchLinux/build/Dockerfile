@@ -40,7 +40,7 @@ RUN curl -fsSL https://raw.githubusercontent.com/wvffle/coder-config/master/reso
 
 # Install Python using PyEnv
 RUN pyenv install -s 3 && pyenv global 3
-RUN pip install poetry
+RUN /home/coder/.pyenv/shims/pip install -I poetry
 
 # Install Rust using Rustup
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
