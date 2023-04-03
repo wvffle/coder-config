@@ -40,7 +40,11 @@ resource "coder_agent" "main" {
     #!/bin/sh
 
     # Start code-server
-    /home/coder/.local/bin/code-server --auth none --port 13337 &
+    /home/coder/.local/bin/code-server \
+    	--disable-telemetry \
+	--disable-workspace-trust \
+    	--auth none \
+	--port 13337 &
 
     # Source the dotfiles
     coder dotfiles -y ${var.dotfiles_uri} &
