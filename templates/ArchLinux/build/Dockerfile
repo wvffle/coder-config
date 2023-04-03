@@ -8,7 +8,7 @@ USER 0
 # Install needed packages
 RUN pacman -Syyu --noconfirm --quiet --noprogressbar \
       ca-certificates curl wget \
-      gcc base-devel make git man-db \
+      base-devel git man-db man-pages \
       neovim \
       pyenv \
       bash zsh zsh-autosuggestions starship && \
