@@ -17,7 +17,8 @@ RUN pacman -Syyu --noconfirm --quiet --noprogressbar \
       make \
       git \
       neovim \
-      pyenv && \
+      pyenv \
+      starship && \
     # Delete package cache to avoid consuming space in layer
     pacman -Scc
 
@@ -29,17 +30,17 @@ RUN useradd coder \
       --user-group
 RUN echo coder:coder | chpasswd
 
-
-RUN curl -fsSL https://raw.githubusercontent.com/wvffle/coder-config/master/resources/bashrc > /home/coder/.bashrc && \
-    chown coder /home/coder/.bashrc
-
 # Workspace
 RUN mkdir /home/coder/workspace && ln -s /home/coder/workspace /workspace && chown coder:coder /workspace
 
 USER 1000
 
+# Shell
+RUN curl -fsSL https://raw.githubusercontent.com/wvffle/coder-config/master/resources/bashrc > /home/coder/.bashrc
+
 # Install Python using PyEnv
-RUN pyenv install -s 3
+RUN pyenv install -s 3 && pyenv global 3
+RUN pip install poetry
 
 # Install Rust using Rustup
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -53,3 +54,4 @@ RUN wget https://code-server.dev/install.sh -P /home/coder/ && \
     chmod +x /home/coder/install.sh && \
     /home/coder/install.sh --method standalone && \
     rm /home/coder/install.sh
+
