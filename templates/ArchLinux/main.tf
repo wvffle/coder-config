@@ -1,12 +1,38 @@
-variable "dotfiles_uri" {
-  description = <<-EOF
-  Dotfiles repo URI (optional)
-
-  see https://dotfiles.github.io
-  EOF
+# Parameters
+data "coder_parameter" "dotfiles_url" {
+  name        = "Dotfiles URL"
+  description = "Dotfiles repo URL (see https://dotfiles.github.io)"
+  mutable     = true
   default     = ""
 }
 
+data "coder_parameter" "code_server_sharing" {
+  name        = "Sharing"
+  description = "Who has the access to the Web IDE?"
+  icon        = "/emojis/1f512.png"
+  type        = "string"
+  default     = "owner"
+
+  option {
+    name = "Only me"
+    value = "owner"
+    icon = "/emojis/1f512.png"
+  }
+
+  option {
+    name = "Authenticated users"
+    value = "authenticated"
+    icon = "/emojis/1f464.png"
+  }
+
+  option {
+    name = "Everybody (DANGER)"
+    value = "public"
+    icon = "/emojis/1f480.png"
+  }
+}
+
+# Terraform stuff
 terraform {
   required_providers {
     coder = {
@@ -20,6 +46,7 @@ terraform {
   }
 }
 
+# Coder stuff
 locals {
   username = data.coder_workspace.me.owner
 }
@@ -33,6 +60,7 @@ provider "docker" {
 data "coder_workspace" "me" {
 }
 
+# Startup script
 resource "coder_agent" "main" {
   arch           = "amd64"
   os             = "linux"
@@ -47,7 +75,7 @@ resource "coder_agent" "main" {
 	    --port 13337 &
 
     # Source the dotfiles
-    coder dotfiles -y ${var.dotfiles_uri} &
+    coder dotfiles -y ${data.coder_parameter.dotfiles_url.value} &
   EOF
 
   # These environment variables allow you to make Git commits right away after creating a
@@ -62,22 +90,7 @@ resource "coder_agent" "main" {
   }
 }
 
-resource "coder_app" "code-server" {
-  agent_id     = coder_agent.main.id
-  slug         = "code-server"
-  display_name = "code-server"
-  url          = "http://localhost:13337/?folder=/workspace"
-  icon         = "/icon/code.svg"
-  subdomain    = false
-  share        = "owner"
-
-  healthcheck {
-    url       = "http://localhost:13337/healthz"
-    interval  = 5
-    threshold = 6
-  }
-}
-
+# Docker stuff
 resource "docker_volume" "home_volume" {
   name = "coder-${data.coder_workspace.me.id}-home"
   # Protect the volume from being deleted due to changes in attributes.
@@ -115,6 +128,7 @@ resource "docker_image" "main" {
   }
   triggers = {
     dir_sha1 = sha1(join("", [for f in fileset(path.module, "build/*") : filesha1(f)]))
+    dir_sha1 = sha1(join("", [for f in fileset(path.module, "../../resources/*") : filesha1(f)]))
   }
 }
 
@@ -153,5 +167,22 @@ resource "docker_container" "workspace" {
   labels {
     label = "coder.workspace_name"
     value = data.coder_workspace.me.name
+  }
+}
+
+# Code Server
+resource "coder_app" "code-server" {
+  agent_id     = coder_agent.main.id
+  slug         = "code-server"
+  display_name = "code-server"
+  url          = "http://localhost:13337/?folder=/workspace"
+  icon         = "/icon/code.svg"
+  subdomain    = false
+  share        = data.coder_parameter.code_server_sharing.value
+
+  healthcheck {
+    url       = "http://localhost:13337/healthz"
+    interval  = 5
+    threshold = 6
   }
 }
