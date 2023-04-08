@@ -7,7 +7,7 @@ USER 0
 
 # Install needed packages
 RUN pacman -Syyu --noconfirm --quiet --noprogressbar \
-      ca-certificates curl wget \
+      ca-certificates curl wget openssh \
       base-devel git man-db man-pages \
       neovim \
       pyenv \

@@ -128,7 +128,7 @@ resource "docker_image" "main" {
   }
   triggers = {
     dir_sha1 = sha1(join("", [for f in fileset(path.module, "build/*") : filesha1(f)]))
-    dir_sha1 = sha1(join("", [for f in fileset(path.module, "../../resources/*") : filesha1(f)]))
+    # dir_sha1 = sha1(join("", [for f in fileset(path.module, "../../resources/*") : filesha1(f)]))
   }
 }
 
